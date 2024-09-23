@@ -4,6 +4,13 @@ import random
 
 # TODO: Remove the above TEST imports
 
+from machine import Pin
+
+from common import DataSentinel
+from main import encoder_interrupt
+
+# DataSentinel singleton object
+ds = DataSentinel()
 
 def set_speed(right_speed, left_speed):
     """
@@ -21,7 +28,6 @@ def set_speed(right_speed, left_speed):
     speed = 0 : stop
     speed > 0 : moving forward
 
-    
     """
 
     if not (-100 <= right_speed <= 100 and -100 <= left_speed <= 100):
@@ -77,3 +83,60 @@ def get_color_grid():
 
     return [random.choice([True, False]) for _ in range(5)]
 
+def start_encoder_pulse_counting():
+    """
+    Function to start the encoder pulse counting, on calling the function twice, will reset the counter
+
+    Count reliable until 2,14,74,83,647 
+    """
+
+    try:
+
+        # Reset the encoder counter & set the couting state to True
+        ds.reset_encoder_count()
+        ds.set_encoder_status(True)
+
+        # Enable the interrupts on the encoder pin
+        encoder = Pin(3, Pin.IN)
+        encoder.irq(trigger=Pin.IRQ_RAISING, handler=encoder_interrupt)
+
+        return True
+    
+    except Exception as e:
+
+        # TODO: Throw exception to server over websocket
+        return False
+
+
+def stop_encoder_pulse_counting():
+    """
+    Function to stop the encoder pulse counting, will reset the counter value
+    """
+
+    try:
+
+        # Reset the encoder counter & set the couting state to False
+        ds.reset_encoder_count()
+        ds.set_encoder_status(False)
+
+        # Disable the interrupts on the encoder pin
+        encoder = Pin(3, Pin.IN)
+        encoder.irq(handler=None)
+
+        return True
+    
+    except Exception as e:
+
+        # TODO: Throw exception to server over websockets
+        return False
+    
+def get_encoder_pulse_count():
+    """
+    Function to get the encoder pulse count, reliable count until 2,14,74,83,647
+    
+    @return:
+        count: int - Encoder pulse count
+
+    """
+
+    return ds.get_encoder_count()
