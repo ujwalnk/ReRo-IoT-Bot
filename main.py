@@ -1,10 +1,13 @@
 from machine import Pin
-from time import Sleep
+from time import sleep
 
 from common import DataSentinel
 
+import network
+import server
+
 # Singleton class instance
-ds = DataSentinel()
+# ds = DataSentinel()
 
 def run_user_code():
     """
@@ -38,8 +41,28 @@ def encoder_interrupt(pin):
 def setup():
     """ Function to setup the environment """
 
-    # TODO: Setup the websocket
-    
+    # TODO: Setup the server
+
+    # WiFi Setup
+    ssid = "ReRo Lab"
+    password = ""
+    station = network.WLAN(network.STA_IF)
+
+    station.active(True)
+
+    if not station.isconnected():
+
+        station.connect(ssid, password)
+
+        while station.isconnected() == False:
+            pass
+
+    print('Connection successful')
+    print(station.ifconfig())
+
+    # Configure & get server started
+    server.start()
+
     # Interrupts configuration
 
 

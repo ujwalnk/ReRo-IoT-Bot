@@ -12,6 +12,8 @@ class DataSentinel():
     # Singleton class implementation
     __self__ = None
 
+    SERVER_IP_ADDRESS = "http://192.168.1.2:8082"
+
 
     def __init__():
         """ Singleton class initilization """
