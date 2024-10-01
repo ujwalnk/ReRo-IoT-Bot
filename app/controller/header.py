@@ -1,16 +1,4 @@
-# TODO: Remove the below TEST imports
-
 import random
-
-# TODO: Remove the above TEST imports
-
-from machine import Pin
-
-from common import DataSentinel
-from main import encoder_interrupt
-
-# DataSentinel singleton object
-ds = DataSentinel()
 
 def set_speed(right_speed, left_speed):
     """
@@ -93,12 +81,10 @@ def start_encoder_pulse_counting():
     try:
 
         # Reset the encoder counter & set the couting state to True
-        ds.reset_encoder_count()
-        ds.set_encoder_status(True)
+        # ds.reset_encoder_count()
+        # ds.set_encoder_status(True)
 
         # Enable the interrupts on the encoder pin
-        encoder = Pin(3, Pin.IN)
-        encoder.irq(trigger=Pin.IRQ_RAISING, handler=encoder_interrupt)
 
         return True
     
@@ -139,4 +125,4 @@ def get_encoder_pulse_count():
 
     """
 
-    return ds.get_encoder_count()
+    return random.randint(0, 21467111)
