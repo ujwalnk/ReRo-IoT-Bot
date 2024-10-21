@@ -1,28 +1,78 @@
-import random
+from ..main import push_2_server
+from .controller import Motor
 
-def set_speed(right_speed, left_speed):
+
+# r_motor = Motor(7)
+# l_motor = Motor(6)
+
+max_speed = 300
+
+def dump(value:str):
+    """
+    Print the value to the dashboard console, should be used in place of python default print. 
+    Can be used for debugging purposes, does not have the default attributes of the python print function
+
+    @param:
+        value: str - Value to be printed to the console
+
+    """
+    print("Printing some value: ", value)
+    push_2_server(value, "print")
+
+
+def set_right_speed(speed: int):
     """
     Function to set the speed of the motors
     
     @param:
-        right_speed: int - Speed of the right motor 
-        left_speed: int - Speed of the left motor
+        speed: int - Speed of the right motor 
 
     @return:
         bool - Speed set success or failure
 
-    right_speed & left_speed should be a number between -100 and 100,
+    speed  should be a number between -100 and 100,
     speed < 0 : moving backwards
     speed = 0 : stop
     speed > 0 : moving forward
 
     """
 
-    if not (-100 <= right_speed <= 100 and -100 <= left_speed <= 100):
+    if not (-100 <= speed <= 100):
         return False
+    
+    if speed == 0:
+        r_motor.halt_motor()
+    
+    return r_motor.set_speed(max_speed * speed / 100)
+
     
     # TODO: Code to set the motor speed goes here
     return True
+    
+def set_left_speed(speed: int):
+    """
+    Function to set the speed of the left motor
+    
+    @param:
+        speed: int - Speed of the left motor 
+
+    @return:
+        bool - Speed set success or failure
+
+    speed should be a number between -100 and 100,
+    speed < 0 : moving backwards
+    speed = 0 : stop
+    speed > 0 : moving forward
+
+    """
+
+    if not -100 <= speed <= 100:
+        return False
+    
+    if speed == 0:
+        l_motor.halt_motor()
+    
+    return l_motor.set_speed(max_speed * speed / 100)
     
 
 
@@ -30,7 +80,7 @@ def get_speed():
     """
     Function to get the speed of the motors
     
-    @return:
+    @return: [right_speed, left_speed]
         right_speed: int - Speed of the right motor 
         left_speed: int - Speed of the left motor
 
@@ -42,20 +92,7 @@ def get_speed():
     """
 
     # TODO: Code to reading the current motor speed
-    return [random.randint(-100, 100), random.randint(-100, 100)]
-
-
-def get_distance_to_obstacle():
-    """
-    Function to get the distance to the obstacle in front using the IR sensor
-    
-    @return:
-        distance: float - Distance to the nearest obstacle in cm
-
-    """
-
-    # TODO: Code to getting the IR Sensor distance
-    return random.randint(0, 100)
+    return [r_motor.get_speed(), l_motor.get_speed()]
 
 def get_color_grid():
     """
@@ -70,59 +107,3 @@ def get_color_grid():
     """
 
     return [random.choice([True, False]) for _ in range(5)]
-
-def start_encoder_pulse_counting():
-    """
-    Function to start the encoder pulse counting, on calling the function twice, will reset the counter
-
-    Count reliable until 2,14,74,83,647 
-    """
-
-    try:
-
-        # Reset the encoder counter & set the couting state to True
-        # ds.reset_encoder_count()
-        # ds.set_encoder_status(True)
-
-        # Enable the interrupts on the encoder pin
-
-        return True
-    
-    except Exception as e:
-
-        # TODO: Throw exception to server over websocket
-        return False
-
-
-def stop_encoder_pulse_counting():
-    """
-    Function to stop the encoder pulse counting, will reset the counter value
-    """
-
-    try:
-
-        # Reset the encoder counter & set the couting state to False
-        ds.reset_encoder_count()
-        ds.set_encoder_status(False)
-
-        # Disable the interrupts on the encoder pin
-        encoder = Pin(3, Pin.IN)
-        encoder.irq(handler=None)
-
-        return True
-    
-    except Exception as e:
-
-        # TODO: Throw exception to server over websockets
-        return False
-    
-def get_encoder_pulse_count():
-    """
-    Function to get the encoder pulse count, reliable count until 2,14,74,83,647
-    
-    @return:
-        count: int - Encoder pulse count
-
-    """
-
-    return random.randint(0, 21467111)

@@ -5,6 +5,10 @@ services:
             dockerfile: dockerfile
         volumes:
             - ./app:/rero/iot_bot/app
+            
+            # Expose system ports & GPIOs
+            - /dev:/dev
+            - /sys:/sys
         ports:
             - 8082:8082
         tty: true

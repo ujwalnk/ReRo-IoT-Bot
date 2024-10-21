@@ -24,6 +24,12 @@ RUN python3 -m pip install -r /rero/iot_bot/venv/requirements.txt
 RUN mkdir -p /rero/iot_bot/app
 VOLUME ["/rero/iot_bot/app"]
 
+# Expose system ports
+VOLUME ["/dev"]
+
+# Expose the system GPIOs
+VOLUME ["/sys"]
+
 # IoT Bot communication port
 EXPOSE 8082
 
