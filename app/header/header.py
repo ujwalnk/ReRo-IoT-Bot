@@ -2,6 +2,9 @@
 from .controller import Motor
 from .communication import push_2_server
 
+from gpiozero import DigitalInputDevice
+
+color_sensors = [DigitalInputDevice(9), DigitalInputDevice(10), DigitalInputDevice(22), DigitalInputDevice(27), DigitalInputDevice(17)]
 
 # r_motor = Motor(7)
 # l_motor = Motor(6)
@@ -108,4 +111,5 @@ def get_color_grid():
 
     """
 
-    return [random.choice([True, False]) for _ in range(5)]
+    global color_sensors
+    return [sensor.value for sensor in color_sensors]
