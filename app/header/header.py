@@ -1,5 +1,6 @@
-from ..main import push_2_server
+# from ..main import push_2_server
 from .controller import Motor
+from .communication import push_2_server
 
 
 # r_motor = Motor(7)
@@ -18,6 +19,7 @@ def dump(value:str):
     """
     print("Printing some value: ", value)
     push_2_server(value, "print")
+    print("Printed value")
 
 
 def set_right_speed(speed: int):

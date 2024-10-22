@@ -1,65 +1,80 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File
-
+from fastapi import FastAPI, UploadFile, File
+from .runner import Runner
 import aiofiles
-import requests
-import subprocess
-import sys
-import os
+import asyncio
+
 
 app = FastAPI()
+runner: Runner = Runner()
 
-user_file_path = "/rero/iot_bot/app/user_file.py"
+user_file_path: str = "/rero/iot_bot/app/user_file.py"
+
+# Timeout in minutes
+USER_TIMEOUT = 30
+
+prepended_imports = [
+    "from app.header.header import dump\n",
+    "import signal\n",
+    "import time\n",
+]
+
+appended_runner = f"""\n\ndef __runner__():
+    def handler(signum, frame):
+        raise TimeoutError("Function execution timed out")
+
+    signal.signal(signal.SIGALRM, handler)
+    signal.alarm({USER_TIMEOUT * 60})
+
+    try:
+        main()
+    except TimeoutError as e:
+        dump("Exception:" + str(e))
+    finally:
+        signal.alarm(0)
+"""
+
 
 @app.post("/push_code")
 async def save_file(file: UploadFile = File(...)):
     global user_file_path
 
-    async with aiofiles.open(user_file_path, 'wb') as out_file:
+    async with aiofiles.open(user_file_path, "wb") as out_file:
         while content := await file.read(1024):  # Read file in chunks
             await out_file.write(content)
 
-    async with aiofiles.open(user_file_path, 'r+') as out_file:
+    async with aiofiles.open(user_file_path, "r+") as out_file:
         content = await out_file.read()
         await out_file.seek(0)
-        await out_file.write("from app.controller.header import dump\n" + content)
 
-    # try:
-    #     result = subprocess.run(["python3", f"/tmp/{file.filename}"], capture_output=True, text=True, check=True)
-    #     push_2_server(result.stdout, "print")
-    # except subprocess.CalledProcessError as e:
-    #     push_2_server(e.stderr, "error")
+        import_lines = "".join(prepended_imports)
 
-    import os 
+        await out_file.write(import_lines + content + appended_runner)
 
-    print(os.getcwd())
+    import importlib.util
 
-    import app.user_file as uf
-    uf.main()
-        
+    try:
+        spec = importlib.util.spec_from_file_location("uf", user_file_path)
+        uf = importlib.util.module_from_spec(spec)
+        await asyncio.wait_for(
+            asyncio.to_thread(spec.loader.exec_module, uf), timeout=1
+        )
+
+        global runner
+        runner = Runner(uf.__runner__)
+        runner.run()
+
+    except asyncio.TimeoutError:
+        return {"detail": "Importing user_file timed out"}
+    except Exception as e:
+        print(e)
+        return {"detail": f"An error occurred: {str(e)}"}
+
     return {"detail": "File saved successfully & running"}
 
 
-def push_2_server(value: str, type: str):
-    """
-    Push value to the server with type
-    
-    @param:
-        - value (str): Value to be sent
-        - type (str): Type of value being sent (error / print)
-
-    """
-
-    url = ""
-
-    if type == "error":
-        url = "http://localhost/iot/dump"
-    elif type == "print":
-        url = "http://localhost:8080/iot/exception"
-
-    params = {"value": value}
-    response = requests.get(url, params=params)
-    
-    if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail="Failed to push to server")
-    
-    return response.json()
+@app.get("/stop_code")
+async def stop_bot():
+    global runner
+    runner.kill()
+    print("Stopping code")
+    return {"detail": "Bot stopped"}

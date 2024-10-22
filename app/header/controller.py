@@ -121,24 +121,24 @@ class Motor:
         self.__e_stop_motor__()
 
 
-def main():
+# def main():
 
-    # User code goes here
-    # TODO : implement separate subprocess/thread to run user code
-    rightMotor = Motor(7)
-    rightMotor.setSpeed(9000, 0)
-    time.sleep(2)
-    print(rightMotor.getSpeed(), rightMotor.getDirection())
-    time.sleep(2)
-    rightMotor.haltMotor()
-    time.sleep(2)
-    rightMotor.setSpeed(9000, 1)
-    time.sleep(2)
-    print(rightMotor.getSpeed(), rightMotor.getDirection())
-    time.sleep(2)
-    rightMotor.haltMotor()
+#     # User code goes here
+#     # TODO : implement separate subprocess/thread to run user code
+#     rightMotor = Motor(7)
+#     rightMotor.setSpeed(9000, 0)
+#     time.sleep(2)
+#     print(rightMotor.getSpeed(), rightMotor.getDirection())
+#     time.sleep(2)
+#     rightMotor.haltMotor()
+#     time.sleep(2)
+#     rightMotor.setSpeed(9000, 1)
+#     time.sleep(2)
+#     print(rightMotor.getSpeed(), rightMotor.getDirection())
+#     time.sleep(2)
+#     rightMotor.haltMotor()
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
 

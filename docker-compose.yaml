@@ -4,6 +4,7 @@ services:
             context: .
             dockerfile: dockerfile
         volumes:
+            # Mount the fastapi server
             - ./app:/rero/iot_bot/app
             
             # Expose system ports & GPIOs
