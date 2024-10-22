@@ -29,6 +29,8 @@ appended_runner = f"""\n\ndef __runner__():
         main()
     except TimeoutError as e:
         dump("Exception:" + str(e))
+    except Exception as e:
+        dump("Exception:" + str(e))
     finally:
         signal.alarm(0)
 """

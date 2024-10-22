@@ -6,7 +6,6 @@
 
 # Imports
 import time
-
 import minimalmodbus
 
 # Global settings
@@ -15,7 +14,6 @@ BAUD = 9600
 TIMEOUT = 2
 SLAVE_ID_1 = 7
 SLAVE_ID_2 = 6
-
 
 # Motor Class
 class Motor:
